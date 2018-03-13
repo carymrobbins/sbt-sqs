@@ -10,13 +10,14 @@ import scala.util.Try
 
 object StartElasticMQ {
 
-  def apply(jarDir: File, jarFile: String, heapSize: Option[Int], nodeAddress: NodeAddressConf, restSQS: RestSQSConf, queues: Seq[QueueConf], streamz: TaskStreams): String = {
+  def apply(jarDir: File, jarFile: String, heapSize: Option[Int], nodeAddress: NodeAddressConf, restSQS: RestSQSConf, queues: Seq[QueueConf], javaOpts: Seq[String], streamz: TaskStreams): String = {
     val args =
       Seq("java") ++
         heapSize.map(mb => Seq(s"-Xms${mb}m", s"-Xmx${mb}m")).getOrElse(Nil) ++
         argsFromNodeAddress(nodeAddress) ++
         argsFromRestSQS(restSQS) ++
         argsFromQueues(queues) ++
+        javaOpts ++
         Seq("-jar", new File(jarDir, jarFile).getAbsolutePath)
 
     if (isElasticMQRunning(restSQS.bindHostname, restSQS.bindPort)) {

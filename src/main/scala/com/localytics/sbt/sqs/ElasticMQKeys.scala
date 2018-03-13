@@ -16,6 +16,7 @@ object ElasticMQKeys {
   lazy val elasticMQFileName       = settingKey[String]("The name of the ElasticMQ jar file. Defaults to 'elasticmq-server-{version}.jar'")
   lazy val elasticMQVersion        = settingKey[String]("The version of ElasticMQ. Defaults to '0.9.0-beta1'")
   lazy val elasticMQHeapSize       = settingKey[Option[Int]]("The size of the heap for ElasticMQ. Defaults to the JVM default.")
+  lazy val elasticMQJavaOptions    = settingKey[Seq[String]]("Additional options for the JVM running ElasticMQ.")
 
   lazy val nodeAddressConf         = settingKey[NodeAddressConf]("The NodeAddress configuration. Defaults to NodeAddressConf(protocol = \"http\", host = \"localhost\", port = 9324, contextPath = \"\").")
   lazy val restSQSConf             = settingKey[RestSQSConf]("The RestSQS configuration. Defaults to RestSQSConf(enabled = true, bindPort = 9324, bindHostname = \"0.0.0.0\", sqsLimits = \"strict\")")
@@ -33,13 +34,14 @@ object ElasticMQKeys {
     elasticMQUrl            := s"https://s3-eu-west-1.amazonaws.com/softwaremill-public/elasticmq-server-${elasticMQVersion.value}.jar",
     elasticMQFileName       := s"elasticmq-server-${elasticMQVersion.value}.jar",
     elasticMQHeapSize       := None,
+    elasticMQJavaOptions    := Seq(),
 
     nodeAddressConf         := NodeAddressConf(),
     restSQSConf             := RestSQSConf(),
     queuesConf              := Seq(),
 
     downloadElasticMQ       := DownloadElasticMQ(elasticMQVersion.value, elasticMQUrl.value, elasticMQDir.value, elasticMQFileName.value, streams.value),
-    startElasticMQ          := StartElasticMQ(elasticMQDir.value, elasticMQFileName.value, elasticMQHeapSize.value, nodeAddressConf.value, restSQSConf.value, queuesConf.value, streams.value),
+    startElasticMQ          := StartElasticMQ(elasticMQDir.value, elasticMQFileName.value, elasticMQHeapSize.value, nodeAddressConf.value, restSQSConf.value, queuesConf.value, elasticMQJavaOptions.value, streams.value),
     stopElasticMQ           := StopElasticMQ(streams.value),
     elasticMQTestCleanup    := Tests.Cleanup(() => StopElasticMQ(streams.value)),
     startElasticMQ          := startElasticMQ.dependsOn(downloadElasticMQ).value
